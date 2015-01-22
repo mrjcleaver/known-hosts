@@ -1,0 +1,70 @@
+#! /bin/sh
+
+KNOWN_HOSTS=~/.ssh/known_hosts
+BAK=.bak
+KNOWN_HOSTS_BAK=$KNOWN_HOSTS$BAK
+
+HELP=$HELP"\n r remove server's key"
+if [ "$1" == "r" -o "$1" == "remove" ]; then
+    ssh-keygen -R $2
+    DONE=1
+fi
+
+HELP=$HELP"\n a scan = scan for the server's key"
+if [ "$1" == "a" -o "$1" == "scan" ]; then
+    HOST="$2"
+    if [ "`grep $HOST $KNOWN_HOSTS`" ]; then
+	echo "Record already existed for $HOST"
+	exit 1
+    fi
+    ssh-keyscan -t rsa,dsa $HOST >> $KNOWN_HOSTS
+    DONE=1
+fi
+
+HELP=$HELP"\n t tail = look at the last few lines of the known hosts file"
+if [ "$1" == "t" -o "$1" == "tail" ]; then
+   tail $KNOWN_HOSTS
+   DONE=1
+fi
+
+HELP=$HELP"\n d delete N = delete line number N from hosts file"
+if [ "$1" == "d" -o "$1" == "delete" ]; then
+  LINE=$2
+  DEL="$LINE d"
+  sed -i $BAK "$DEL" $KNOWN_HOSTS
+
+  echo "Removed: (old version in $KNOWN_HOSTS_BAK)"
+  diff $KNOWN_HOSTS $KNOWN_HOSTS_BAK
+  DONE=1
+fi
+
+HELP=$HELP"\n undo = restore backup file (prototype)"
+if [ "$1" == "undo" ]; then
+   echo "Restoring prior version"
+   cmd="mv $KNOWN_HOSTS_BAK $KNOWN_HOSTS"
+   echo $cmd
+   `$cmd`
+   DONE=1
+fi
+
+HELP=$HELP"\n d install host file = use file with password in to ssh-copy-id"
+if [ "$1" == "install" ]; then
+    HOST=$2
+    FILE=$3
+    if [ -z "$FILE" ]; then
+	echo "host password file"
+        exit 1
+    fi
+    cmd="sshpass -f $FILE ssh-copy-id root\@$HOST"
+    echo $cmd
+    `$cmd
+    DONE=1`
+fi
+
+if [ ! "$DONE" ]; then
+    echo $HELP
+fi
+
+# If you want to hash host names (so that someone who reads your known_hosts file cannot know the names of these servers — it's a very minor privacy gain), run ssh-keygen -H afterwards.
+
+# Option to sort the known hosts file
