@@ -10,8 +10,8 @@ known-hosts help
 
 Provides:
 
- r remove server's key
- a scan = scan for the server's key
- t tail = look at the last few lines of the known hosts file
- d delete N = delete line number N from hosts file
- undo = restore backup file (prototype)
+- r remove server's key
+- a scan = scan for the server's key
+- t tail = look at the last few lines of the known hosts file
+- d delete N = delete line number N from hosts file
+- undo = restore backup file (prototype)
